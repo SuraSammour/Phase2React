@@ -1,6 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useState } from 'react';
 import './styles.css';
-
 
 const productsList = [
     { name: 'Smartphone', category: 'electronics', price: 299 },
@@ -21,39 +20,17 @@ const productsList = [
     { name: 'Shorts', category: 'clothing', price: 34 }
 ];
 
-
-const displayProduct = (category: string = "all") => {
-    let products = '';
-    for (let i = 0; i < productsList.length; i++) {
-        if (category === "all" || productsList[i].category === category) {
-            products += `
-            <div class="product">
-                <h3>Name: ${productsList[i].name}</h3>
-                <p>Category: ${productsList[i].category}</p>
-                <p>Price: $${productsList[i].price}</p>
-            </div>
-            `;
-        }
-    }
-    return products;
-};
-
 const App: React.FC = () => {
-    
-    useEffect(() => {
-        const All = document.querySelector(".ALL");
-        All?.addEventListener("click", () => {
-            document.querySelector(".productItem")!.innerHTML = displayProduct("all");
-        });
-        const ELE = document.querySelector(".ELE");
-        ELE?.addEventListener("click", () => {
-            document.querySelector(".productItem")!.innerHTML = displayProduct("electronics");
-        });
-        const CLO = document.querySelector(".CLO");
-        CLO?.addEventListener("click", () => {
-            document.querySelector(".productItem")!.innerHTML = displayProduct("clothing");
-        });
-    }, []); 
+    const [filteredProducts, setFilteredProducts] = useState(productsList);
+
+    const filterProducts = (category: string) => {
+        if (category === "all") {
+            setFilteredProducts(productsList);
+        } else {
+            const filtered = productsList.filter(product => product.category === category);
+            setFilteredProducts(filtered);
+        }
+    };
 
     return (
         <div className="container">
@@ -61,11 +38,19 @@ const App: React.FC = () => {
                 <h1>Product List</h1>
             </header>
             <section className="filterSection row">
-                <button className="ALL filterButton">All</button>
-                <button className="ELE filterButton">Electronics</button>
-                <button className="CLO filterButton">Clothing</button>
+                <button className="filterButton" onClick={() => filterProducts("all")}>All</button>
+                <button className="filterButton" onClick={() => filterProducts("electronics")}>Electronics</button>
+                <button className="filterButton" onClick={() => filterProducts("clothing")}>Clothing</button>
             </section>
-            <div className="productItem row" dangerouslySetInnerHTML={{ __html: displayProduct("all") }}></div>
+            <div className="productItem row">
+                {filteredProducts.map(product => (
+                    <div className="product" key={product.name}>
+                        <h3>Name: {product.name}</h3>
+                        <p>Category: {product.category}</p>
+                        <p>Price: ${product.price}</p>
+                    </div>
+                ))}
+            </div>
         </div>
     );
 };
